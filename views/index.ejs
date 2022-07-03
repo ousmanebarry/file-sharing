@@ -5,15 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/style.css" type="text/css" />
-    <title>Document</title>
+    <title>File sharing</title>
   </head>
   <body>
-    <form style="display: grid">
+    <form action="/upload" method="post" enctype="multipart/form-data">
       <label for="file">File:</label>
-      <input type="file" id="file" name="file" />
+      <input type="file" id="file" name="file" required />
       <label for="password">Password:</label>
       <input type="password" id="password" name="password" />
-      <input type="submit" value="Share" />
+      <button type="submit">Share</button>
     </form>
   </body>
 </html>
