@@ -8,6 +8,13 @@
     <title>File sharing</title>
   </head>
   <body>
+    <% if (locals.fileLink != null) { %>
+    <div class="link">
+      Your file is uploaded
+      <a href="<%= locals.fileLink %> "><%= locals.fileLink %></a>
+    </div>
+    <%}%>
+
     <form action="/upload" method="post" enctype="multipart/form-data">
       <label for="file">File:</label>
       <input type="file" id="file" name="file" required />

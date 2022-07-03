@@ -11,6 +11,7 @@ const upload = multer({ dest: 'uploads' });
 mongoose.connect(process.env.DATABASE_URL);
 
 app.set('view engine', 'ejs');
+
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
@@ -29,8 +30,12 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   }
 
   const file = await File.create(fileData);
-  console.log(file);
-  res.send(file.originalName);
+
+  res.render('index', { fileLink: `${req.headers.origin}/file/${file.id}` });
 });
 
-app.listen(3000);
+app.get('/file/:id', (req, res) => {
+  res.send(req.params.id);
+});
+
+app.listen(process.env.PORT);
