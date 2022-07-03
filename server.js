@@ -4,6 +4,7 @@ const multer = require('multer');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const File = require('./models/File');
+const fs = require('fs');
 
 const app = express();
 const upload = multer({ dest: 'uploads' });
@@ -26,13 +27,15 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     password: req.body.password,
   };
 
+  console.log(fileData);
+
   if (req.body.password != null && req.body.password !== '') {
     fileData.password = await bcrypt.hash(req.body.password, 10);
   }
 
   const file = await File.create(fileData);
 
-  res.render('index', { fileLink: `${req.headers.origin}/file/${file.id}` });
+  res.render('upload', { fileLink: `${req.headers.origin}/file/${file.id}` });
 });
 
 app.route('/file/:id').get(handleDownload).post(handleDownload);
@@ -52,11 +55,12 @@ async function handleDownload(req, res) {
     }
   }
 
-  file.downloadCount++;
-  await file.save();
-  console.log(file.downloadCount);
+  res.download(file.path, file.originalName, (err) => {
+    fs.unlinkSync(__dirname + '\\' + file.path);
+  });
 
-  res.download(file.path, file.originalName);
+  console.log(__dirname + '\\' + file.path);
+  await file.delete();
 }
 
 app.listen(process.env.PORT);
