@@ -1,10 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); // remove
 const bcrypt = require('bcrypt');
-const File = require('./models/File');
-const fs = require('fs');
+const File = require('./models/File'); // remove
+const { collection, addDoc } = require('firebase/firestore');
+const { ref, uploadBytes } = require('firebase/storage');
+const { storage, firestore } = require('./database/firebase');
+const fs = require('fs'); // remove
 
 const app = express();
 const upload = multer({ dest: 'uploads' });
@@ -33,8 +36,15 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     fileData.password = await bcrypt.hash(req.body.password, 10);
   }
 
+  const docRef = await addDoc(collection(firestore, 'File'), fileData);
+
+  const fileRef = ref(storage, docRef.id);
+
+  await uploadBytes(fileRef, fs.readFileSync(fileData.path));
+
   const file = await File.create(fileData);
 
+  // docRef.id is the id of the file in the database
   res.render('upload', { fileLink: `${req.headers.origin}/file/${file.id}` });
 });
 
