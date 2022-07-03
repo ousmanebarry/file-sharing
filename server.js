@@ -59,7 +59,6 @@ async function handleDownload(req, res) {
     fs.unlinkSync(__dirname + '\\' + file.path);
   });
 
-  console.log(__dirname + '\\' + file.path);
   await file.delete();
 }
 
