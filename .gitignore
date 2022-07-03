@@ -1,3 +1,7 @@
+# packages / libraries
 package-lock.json
 /node_modules
+
+# environment
+
 .env
