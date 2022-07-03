@@ -63,4 +63,4 @@ async function handleDownload(req, res) {
   await file.delete();
 }
 
-app.listen(process.env.PORT);
+app.listen(process.env.PORT || 3000);
