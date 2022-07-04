@@ -1,18 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
-const mongoose = require('mongoose'); // remove
 const bcrypt = require('bcrypt');
-const File = require('./models/File'); // remove
-const { collection, addDoc, getDocs } = require('firebase/firestore');
+const { doc, getDoc, setDoc } = require('firebase/firestore');
 const { ref, uploadBytes, getBytes } = require('firebase/storage');
 const { storage, firestore } = require('./database/firebase');
-const fs = require('fs'); // remove
+const fs = require('fs');
 
 const app = express();
 const upload = multer({ dest: 'uploads' });
-
-mongoose.connect(process.env.DATABASE_URL);
 
 app.set('view engine', 'ejs');
 
@@ -30,36 +26,35 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     password: req.body.password,
   };
 
-  console.log(fileData);
+  const newId = req.file.path.slice(8);
+
+  console.log(fileData, newId);
 
   if (req.body.password != null && req.body.password !== '') {
     fileData.password = await bcrypt.hash(req.body.password, 10);
   }
 
-  const docRef = await addDoc(collection(firestore, 'File'), fileData);
+  const fileRef = ref(storage, newId);
 
-  const fileRef = ref(storage, docRef.id);
-
+  await setDoc(doc(firestore, 'File', newId), fileData);
   await uploadBytes(fileRef, fs.readFileSync(fileData.path));
 
-  const file = await File.create(fileData);
-
-  // docRef.id is the id of the file in the database
-  res.render('upload', { fileLink: `${req.headers.origin}/file/${file.id}` });
+  res.render('upload', { fileLink: `${req.headers.origin}/file/${newId}` });
 });
 
 app.route('/file/:id').get(handleDownload).post(handleDownload);
 
 async function handleDownload(req, res) {
-  // const file = await File.findById(req.params.id);
+  const fileDataRef = doc(firestore, 'File', req.params.id);
+  const fileSnap = await getDoc(fileDataRef);
 
-  const fileRef = ref(
+  const storedFileRef = ref(
     storage,
-    `gs://${process.env.storageBucket}/${req.params.id}`
+    `gs://${process.env.storageBucket}/${fileDataRef.id}`
   );
 
-  const fileBytes = await getBytes(fileRef);
-  fs.writeFileSync('uploads/test.png', Buffer.from(fileBytes));
+  const fileBytes = await getBytes(storedFileRef);
+  fs.writeFileSync(`uploads/${fileDataRef.id}`, Buffer.from(fileBytes));
 
   // if (file.password != null && file.password !== '') {
   //   if (req.body.password == null) {
@@ -73,11 +68,11 @@ async function handleDownload(req, res) {
   //   }
   // }
 
-  // res.download(file.path, file.originalName, (err) => {
-  //   fs.unlinkSync(__dirname + '\\' + file.path);
-  // });
+  const fileData = fileSnap.data();
 
-  // await file.delete();
+  res.download(fileData.path, fileData.originalName, (err) => {
+    fs.unlinkSync(__dirname + '\\' + fileData.path);
+  });
 }
 
 app.listen(process.env.PORT || 3000);
