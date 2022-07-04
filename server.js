@@ -47,6 +47,7 @@ app.route('/file/:id').get(handleDownload).post(handleDownload);
 async function handleDownload(req, res) {
   const fileDataRef = doc(firestore, 'File', req.params.id);
   const fileSnap = await getDoc(fileDataRef);
+  const fileData = fileSnap.data();
 
   const storedFileRef = ref(
     storage,
@@ -56,19 +57,17 @@ async function handleDownload(req, res) {
   const fileBytes = await getBytes(storedFileRef);
   fs.writeFileSync(`uploads/${fileDataRef.id}`, Buffer.from(fileBytes));
 
-  // if (file.password != null && file.password !== '') {
-  //   if (req.body.password == null) {
-  //     res.render('password');
-  //     return;
-  //   }
+  if (fileData.password != null && fileData.password !== '') {
+    if (req.body.password == null) {
+      res.render('password');
+      return;
+    }
 
-  //   if (!(await bcrypt.compare(req.body.password, file.password))) {
-  //     res.render('password', { error: true });
-  //     return;
-  //   }
-  // }
-
-  const fileData = fileSnap.data();
+    if (!(await bcrypt.compare(req.body.password, fileData.password))) {
+      res.render('password', { error: true });
+      return;
+    }
+  }
 
   res.download(fileData.path, fileData.originalName, (err) => {
     fs.unlinkSync(__dirname + '\\' + fileData.path);
