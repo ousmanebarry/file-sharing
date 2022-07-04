@@ -1,11 +1,16 @@
-require('dotenv').config();
-const express = require('express');
-const multer = require('multer');
-const bcrypt = require('bcrypt');
-const { doc, getDoc, setDoc } = require('firebase/firestore');
-const { ref, uploadBytes, getBytes } = require('firebase/storage');
-const { storage, firestore } = require('./database/firebase');
 const fs = require('fs');
+require('dotenv').config();
+const bcrypt = require('bcrypt');
+const multer = require('multer');
+const express = require('express');
+const { storage, firestore } = require('./database/firebase');
+const { doc, getDoc, setDoc, deleteDoc } = require('firebase/firestore');
+const {
+  ref,
+  uploadBytes,
+  getBytes,
+  deleteObject,
+} = require('firebase/storage');
 
 const app = express();
 const upload = multer({ dest: 'uploads' });
@@ -72,6 +77,9 @@ async function handleDownload(req, res) {
   res.download(fileData.path, fileData.originalName, (err) => {
     fs.unlinkSync(__dirname + '\\' + fileData.path);
   });
+
+  await deleteDoc(fileDataRef);
+  await deleteObject(storedFileRef);
 }
 
 app.listen(process.env.PORT || 3000);
