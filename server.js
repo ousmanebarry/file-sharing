@@ -4,8 +4,8 @@ const multer = require('multer');
 const mongoose = require('mongoose'); // remove
 const bcrypt = require('bcrypt');
 const File = require('./models/File'); // remove
-const { collection, addDoc } = require('firebase/firestore');
-const { ref, uploadBytes } = require('firebase/storage');
+const { collection, addDoc, getDocs } = require('firebase/firestore');
+const { ref, uploadBytes, getBytes } = require('firebase/storage');
 const { storage, firestore } = require('./database/firebase');
 const fs = require('fs'); // remove
 
@@ -51,25 +51,33 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 app.route('/file/:id').get(handleDownload).post(handleDownload);
 
 async function handleDownload(req, res) {
-  const file = await File.findById(req.params.id);
+  // const file = await File.findById(req.params.id);
 
-  if (file.password != null && file.password !== '') {
-    if (req.body.password == null) {
-      res.render('password');
-      return;
-    }
+  const fileRef = ref(
+    storage,
+    `gs://${process.env.storageBucket}/${req.params.id}`
+  );
 
-    if (!(await bcrypt.compare(req.body.password, file.password))) {
-      res.render('password', { error: true });
-      return;
-    }
-  }
+  const fileBytes = await getBytes(fileRef);
+  fs.writeFileSync('uploads/test.png', Buffer.from(fileBytes));
 
-  res.download(file.path, file.originalName, (err) => {
-    fs.unlinkSync(__dirname + '\\' + file.path);
-  });
+  // if (file.password != null && file.password !== '') {
+  //   if (req.body.password == null) {
+  //     res.render('password');
+  //     return;
+  //   }
 
-  await file.delete();
+  //   if (!(await bcrypt.compare(req.body.password, file.password))) {
+  //     res.render('password', { error: true });
+  //     return;
+  //   }
+  // }
+
+  // res.download(file.path, file.originalName, (err) => {
+  //   fs.unlinkSync(__dirname + '\\' + file.path);
+  // });
+
+  // await file.delete();
 }
 
 app.listen(process.env.PORT || 3000);

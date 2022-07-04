@@ -13,7 +13,7 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-const storage = getStorage(firebaseApp, 'gs://file-sharing-f33c6.appspot.com');
+const storage = getStorage(firebaseApp, `gs://${process.env.storageBucket}`);
 const firestore = getFirestore(firebaseApp);
 
 module.exports = { storage, firestore };
