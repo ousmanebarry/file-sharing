@@ -39,6 +39,6 @@ appId='YOUR_APP_ID'
 
 `npm install`
 
-- Run the express server and open https://localhost:3000/
+- Run the express server and open http://localhost:3000/
 
 `npm run start`
