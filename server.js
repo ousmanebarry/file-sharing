@@ -31,20 +31,18 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     password: req.body.password,
   };
 
-  const newId = req.file.path.slice(8);
-
-  console.log(fileData, newId);
+  const id = req.file.path.slice(8);
 
   if (req.body.password != null && req.body.password !== '') {
     fileData.password = await bcrypt.hash(req.body.password, 10);
   }
 
-  const fileRef = ref(storage, newId);
+  const fileRef = ref(storage, id);
 
-  await setDoc(doc(firestore, 'File', newId), fileData);
+  await setDoc(doc(firestore, 'File', id), fileData);
   await uploadBytes(fileRef, fs.readFileSync(fileData.path));
 
-  res.render('upload', { fileLink: `${req.headers.origin}/file/${newId}` });
+  res.render('upload', { fileLink: `${req.headers.origin}/file/${id}` });
 });
 
 app.route('/file/:id').get(handleDownload).post(handleDownload);
@@ -74,7 +72,7 @@ async function handleDownload(req, res) {
     }
   }
 
-  res.download(fileData.path, fileData.originalName, (err) => {
+  res.download(fileData.path, fileData.originalName, () => {
     fs.unlinkSync(__dirname + '\\' + fileData.path);
   });
 
