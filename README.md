@@ -1,5 +1,7 @@
 # File sharing
 
+## How it works
+
 ![](images/IMG1.png)
 
 - The user uploads a file with the option to give it a password
