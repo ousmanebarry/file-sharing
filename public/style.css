@@ -4,7 +4,7 @@ form {
   display: grid;
   gap: 0.5rem;
   grid-template-columns: auto 1fr;
-  max-width: 800px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
