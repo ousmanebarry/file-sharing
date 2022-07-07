@@ -78,8 +78,10 @@ async function handleDownload(req, res) {
     fs.unlinkSync(__dirname + '\\' + fileData.path);
   });
 
-  await deleteDoc(fileDataRef);
-  await deleteObject(storedFileRef);
+  res.on('finish', async () => {
+    await deleteObject(storedFileRef);
+    await deleteDoc(fileDataRef);
+  });
 }
 
 app.listen(process.env.PORT || 3000, () => {
