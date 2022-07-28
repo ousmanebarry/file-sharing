@@ -52,36 +52,41 @@ app.route('/file/:id').get(handleDownload).post(handleDownload);
 async function handleDownload(req, res) {
   const fileDataRef = doc(firestore, 'File', req.params.id);
   const fileSnap = await getDoc(fileDataRef);
-  const fileData = fileSnap.data();
 
-  const storedFileRef = ref(
-    storage,
-    `gs://${process.env.storageBucket}/${fileDataRef.id}`
-  );
+  if (!fileSnap.exists()) {
+    res.redirect('/');
+  } else {
+    const fileData = fileSnap.data();
 
-  const fileBytes = await getBytes(storedFileRef);
-  fs.writeFileSync(`uploads/${fileDataRef.id}`, Buffer.from(fileBytes));
+    const storedFileRef = ref(
+      storage,
+      `gs://${process.env.storageBucket}/${fileDataRef.id}`
+    );
 
-  if (fileData.password != null && fileData.password !== '') {
-    if (req.body.password == null) {
-      res.render('password');
-      return;
+    const fileBytes = await getBytes(storedFileRef);
+    fs.writeFileSync(`uploads/${fileDataRef.id}`, Buffer.from(fileBytes));
+
+    if (fileData.password != null && fileData.password !== '') {
+      if (req.body.password == null) {
+        res.render('password');
+        return;
+      }
+
+      if (!(await bcrypt.compare(req.body.password, fileData.password))) {
+        res.render('password', { error: true });
+        return;
+      }
     }
 
-    if (!(await bcrypt.compare(req.body.password, fileData.password))) {
-      res.render('password', { error: true });
-      return;
-    }
+    res.download(fileData.path, fileData.originalName, () => {
+      fs.unlinkSync(__dirname + '\\' + fileData.path);
+    });
+
+    res.on('finish', async () => {
+      await deleteObject(storedFileRef);
+      await deleteDoc(fileDataRef);
+    });
   }
-
-  res.download(fileData.path, fileData.originalName, () => {
-    fs.unlinkSync(__dirname + '\\' + fileData.path);
-  });
-
-  res.on('finish', async () => {
-    await deleteObject(storedFileRef);
-    await deleteDoc(fileDataRef);
-  });
 }
 
 app.listen(process.env.PORT || 3000, () => {
