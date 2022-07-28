@@ -8,11 +8,18 @@
     <title>File sharing</title>
   </head>
   <body>
-    <% if (locals.fileLink != null) { %>
+    <% if(locals.fileLink != null) { %>
     <div class="link">
       Your file is uploaded
-      <a href="<%= locals.fileLink %> "><%= locals.fileLink %></a>
+      <a id="fileLink" href="<%= locals.fileLink %> "><%= locals.fileLink %></a>
+      <button id="copy">Copy Link</button>
     </div>
-    <%}%>
+    <% } %>
   </body>
+  <script>
+    document.getElementById('copy').addEventListener('click', () => {
+      const fileLink = document.getElementById('fileLink');
+      navigator.clipboard.writeText(fileLink.href);
+    });
+  </script>
 </html>
