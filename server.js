@@ -1,6 +1,5 @@
 const fs = require('fs');
 require('dotenv').config();
-const morgan = require('morgan');
 const bcrypt = require('bcrypt');
 const multer = require('multer');
 const express = require('express');
@@ -18,7 +17,6 @@ const upload = multer({ dest: 'uploads' });
 
 app.set('view engine', 'ejs');
 
-app.use(morgan('dev'));
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
