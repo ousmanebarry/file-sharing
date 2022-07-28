@@ -2,6 +2,8 @@
 
 ## How it works
 
+https://barry-shares.herokuapp.com
+
 ![](images/IMG1.png)
 
 - The user uploads a file with the option to give it a password
