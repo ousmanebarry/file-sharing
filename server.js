@@ -76,9 +76,7 @@ async function handleDownload(req, res) {
       }
     }
 
-    res.download(fileData.path, fileData.originalName, () => {
-      fs.unlinkSync(__dirname + '\\' + fileData.path);
-    });
+    res.download(fileData.path, fileData.originalName);
 
     res.on('finish', async () => {
       await deleteObject(storedFileRef);
