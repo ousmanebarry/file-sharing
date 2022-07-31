@@ -20,11 +20,11 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/share', (req, res) => {
+app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.post('/share/upload', upload.single('file'), async (req, res) => {
+app.post('/upload', upload.single('file'), async (req, res) => {
   const fileData = {
     path: req.file.path,
     originalName: req.file.originalname,
@@ -42,10 +42,10 @@ app.post('/share/upload', upload.single('file'), async (req, res) => {
   await setDoc(doc(firestore, 'File', id), fileData);
   await uploadBytes(fileRef, fs.readFileSync(fileData.path));
 
-  res.render('upload', { fileLink: `${req.headers.origin}/share/file/${id}` });
+  res.render('upload', { fileLink: `${req.headers.origin}/file/${id}` });
 });
 
-app.route('/share/file/:id').get(handleDownload).post(handleDownload);
+app.route('/file/:id').get(handleDownload).post(handleDownload);
 
 async function handleDownload(req, res) {
   const fileDataRef = doc(firestore, 'File', req.params.id);
