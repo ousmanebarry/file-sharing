@@ -32,15 +32,18 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   };
 
   const id = req.file.filename;
+  const fileRef = ref(storage, id);
+  const file = fs.readFileSync(fileData.path);
 
   if (req.body.password != null && req.body.password !== '') {
     fileData.password = await bcrypt.hash(req.body.password, 10);
   }
 
-  const fileRef = ref(storage, id);
-
   await setDoc(doc(firestore, 'File', id), fileData);
-  await uploadBytes(fileRef, fs.readFileSync(fileData.path));
+  console.log(file);
+  await uploadBytes(fileRef, file).catch((err) => {
+    console.log(err);
+  });
 
   res.render('upload', { fileLink: `${req.headers.origin}/file/${id}` });
 });
