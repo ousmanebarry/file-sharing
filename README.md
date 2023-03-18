@@ -2,7 +2,7 @@
 
 ## How it works
 
-https://barry-shares.herokuapp.com
+https://barry-shares.herokuapp.com (link does not work until I find another provider to host my project, Heroku is not free anymore)
 
 ![](images/IMG1.png)
 
