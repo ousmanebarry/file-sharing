@@ -16,10 +16,10 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-	res.render('index');
+	res.render('index', { fileLink: req.query.fileLink });
 });
 
-app.post('/upload', upload.single('file'), async (req, res) => {
+app.post('/', upload.single('file'), async (req, res) => {
 	const fileData = {
 		path: req.file.path,
 		originalName: req.file.originalname,
@@ -35,12 +35,13 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 	}
 
 	await setDoc(doc(firestore, 'File', id), fileData);
-	console.log(file);
+
 	await uploadBytes(fileRef, file).catch((err) => {
 		console.log(err);
 	});
 
-	res.render('upload', { fileLink: `${req.headers.origin}/file/${id}` });
+	// Redirect to the same page with the file link as a query parameter
+	res.redirect(`/?fileLink=${encodeURIComponent(`${req.headers.origin}/file/${id}`)}`);
 });
 
 app.route('/file/:id').get(handleDownload).post(handleDownload);
