@@ -24,6 +24,7 @@ app.post('/', upload.single('file'), async (req, res) => {
 		path: req.file.path,
 		originalName: req.file.originalname,
 		password: req.body.password,
+		deleteAfterDownload: req.body.deleteAfterDownload === 'on',
 	};
 
 	const id = req.file.filename;
@@ -78,6 +79,13 @@ async function handleDownload(req, res) {
 // Add a new route to handle the actual file download
 app.get('/download/:id', async (req, res) => {
 	const fileDataRef = doc(firestore, 'File', req.params.id);
+	const fileSnap = await getDoc(fileDataRef);
+
+	if (!fileSnap.exists()) {
+		return res.status(404).send('File not found');
+	}
+
+	const fileData = fileSnap.data();
 	const storedFileRef = ref(storage, `gs://${process.env.storageBucket}/${fileDataRef.id}`);
 	const fileBytes = await getBytes(storedFileRef);
 
@@ -85,8 +93,10 @@ app.get('/download/:id', async (req, res) => {
 	res.download(`uploads/${fileDataRef.id}`, req.query.filename);
 
 	res.on('finish', async () => {
-		await deleteObject(storedFileRef);
-		await deleteDoc(fileDataRef);
+		if (fileData.deleteAfterDownload) {
+			await deleteObject(storedFileRef);
+			await deleteDoc(fileDataRef);
+		}
 	});
 });
 
