@@ -155,6 +155,20 @@ button:focus {
 	background-color: #e5e7eb;
 }
 
+.success {
+	background-color: #ecfdf5;
+	color: var(--success-color);
+	padding: 1rem;
+	border-radius: 6px;
+	border: 1px solid #a7f3d0;
+	margin-bottom: 1.5rem;
+}
+
+.success p {
+	margin: 0;
+	font-weight: 500;
+}
+
 @media (max-width: 640px) {
 	body {
 		padding: 1rem;

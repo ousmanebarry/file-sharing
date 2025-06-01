@@ -55,11 +55,6 @@ async function handleDownload(req, res) {
 	} else {
 		const fileData = fileSnap.data();
 
-		const storedFileRef = ref(storage, `gs://${process.env.storageBucket}/${fileDataRef.id}`);
-
-		const fileBytes = await getBytes(storedFileRef);
-		fs.writeFileSync(`uploads/${fileDataRef.id}`, Buffer.from(fileBytes));
-
 		if (fileData.password != null && fileData.password !== '') {
 			if (req.body.password == null) {
 				res.render('password');
@@ -72,15 +67,28 @@ async function handleDownload(req, res) {
 			}
 		}
 
-		res.download(fileData.path, fileData.originalName);
-
-		res.on('finish', async () => {
-			// await deleteObject(storedFileRef);
-			// await deleteDoc(fileDataRef);
-			console.log('downloaded');
+		// If we get here, the password is correct or not required
+		res.render('password', {
+			success: true,
+			downloadUrl: `/download/${fileDataRef.id}?filename=${encodeURIComponent(fileData.originalName)}`,
 		});
 	}
 }
+
+// Add a new route to handle the actual file download
+app.get('/download/:id', async (req, res) => {
+	const fileDataRef = doc(firestore, 'File', req.params.id);
+	const storedFileRef = ref(storage, `gs://${process.env.storageBucket}/${fileDataRef.id}`);
+	const fileBytes = await getBytes(storedFileRef);
+
+	fs.writeFileSync(`uploads/${fileDataRef.id}`, Buffer.from(fileBytes));
+	res.download(`uploads/${fileDataRef.id}`, req.query.filename);
+
+	res.on('finish', async () => {
+		await deleteObject(storedFileRef);
+		await deleteDoc(fileDataRef);
+	});
+});
 
 app.listen(process.env.PORT || 3000, () => {
 	console.log(`Server started on http://localhost:${process.env.PORT || 3000}`);
