@@ -11,6 +11,11 @@ app.use(express.urlencoded({ extended: true }));
 // Use file routes
 app.use('/', fileRoutes);
 
-app.listen(process.env.PORT || 3000, () => {
-	console.log(`Server started on http://localhost:${process.env.PORT || 3000}`);
-});
+module.exports = app;
+
+if (require.main === module) {
+	const port = process.env.PORT || 3000;
+	app.listen(port, () => {
+		console.log(`Server started on http://localhost:${port}`);
+	});
+}
