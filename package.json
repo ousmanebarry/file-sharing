@@ -2,11 +2,11 @@
 	"name": "file-sharing",
 	"version": "1.0.0",
 	"description": "",
-	"main": "server.js",
+	"main": "src/index.js",
 	"scripts": {
-		"start": "node server.js",
+		"start": "node src/index.js",
 		"build": "echo 'Build completed'",
-		"dev": "nodemon server.js"
+		"dev": "nodemon src/index.js"
 	},
 	"keywords": [],
 	"author": "",
