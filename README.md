@@ -4,11 +4,11 @@
 
 https://barry-shares.herokuapp.com (link does not work until I find another provider to host my project, Heroku is not free anymore)
 
-![](images/IMG1.png)
+![image](https://github.com/user-attachments/assets/c156eedc-b06c-4830-88a5-53d89904d1f4)
 
 - The user uploads a file with the option to give it a password
 
-![](images/IMG2.png)
+![image](https://github.com/user-attachments/assets/23ac6f0f-bef9-4f72-8b55-45cdeab29f8d)
 
 - A randomly generated id is created poiting to that file
 
@@ -20,7 +20,9 @@ https://barry-shares.herokuapp.com (link does not work until I find another prov
 
 - The file is uploaded to firebase storage with the same id as the document in firestore containing its data
 
-![](images/IMG5.png)
+![image](https://github.com/user-attachments/assets/c32b54aa-47bc-4e94-b49c-4c78bfa63b22)
+
+![image](https://github.com/user-attachments/assets/9a84c698-9eac-41db-bd60-f21d34bc2b66)
 
 - The user is able to download the file through the randomly generated link. The file and its accompanying data is then deleted from the database once downloaded
 
