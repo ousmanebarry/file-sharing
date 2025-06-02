@@ -1,5 +1,5 @@
 const express = require('express');
-const fileRoutes = require('./routes/fileRoutes');
+const fileRoutes = require('./src/routes/fileRoutes');
 
 const app = express();
 
